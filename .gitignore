@@ -1,0 +1,8 @@
+.opencode
+graphify-out
+logs
+scripts
+docs
+.vscode
+ppa-dev
+.venv

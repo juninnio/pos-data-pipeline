@@ -1,0 +1,14 @@
+ppa_dbt:
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{env_var('DUCKDB_DEV_DATABASE')}}"
+      schema: analytics   
+      threads: 4     
+
+    prod:
+      type: duckdb
+      path: "{{env_var('DUCKDB_PROD_DATABASE')}}"
+      schema: analytics   
+      threads: 4   
+  target: "{{ env_var('DBT_TARGET') }}"

@@ -1,0 +1,17 @@
+type: dagster_sling.SlingReplicationCollectionComponent
+
+attributes:
+  connections:
+    PPA_POSTGRES:
+      type: postgres
+      host: "{{ env.DBT_PROD_HOST }}"
+      user: "{{ env.DB_SLING_USER }}"
+      password: "{{ env.DB_SLING_PASSWORD }}"
+      database: postgres
+    PPA_DUCKDB:
+      type: duckdb
+      instance: "{{ env.DUCKDB_DEV_DATABASE }}"
+
+
+  replications:
+    - path: replication.yaml

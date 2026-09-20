@@ -1,0 +1,243 @@
+version: 1
+
+models:
+  - name: dim_products
+    description: "Dimensional model for products"
+    columns:
+      - name: product_id
+        data_tests:
+          - unique
+          - not_null
+      - name: product_name
+        data_tests:
+          - not_null
+      - name: category_id
+        data_tests:
+          - relationships:
+              arguments: 
+                to: ref('dim_categories')
+                field: category_id
+      - name: cost
+        data_tests:
+          - not_null
+      - name: price
+        data_tests:
+          - not_null
+
+      - name: unit_margin
+        data_tests:
+          - not_null
+
+      - name: created_at
+        data_tests:
+          - not_null
+      - name: updated_at
+        data_tests:
+          - not_null
+
+  - name: dim_categories
+    description: "Dimensional model for categories"
+    columns:
+      - name: category_id
+        data_tests:
+          - unique
+          - not_null
+      - name: category_name
+        data_tests:
+          - not_null
+      - name: created_at
+        data_tests:
+          - not_null
+      - name: updated_at
+        data_tests:
+          - not_null
+
+  - name : dim_payment_methods
+    description: "Dimensional model for payment methods"
+    columns:
+      - name: payment_method_id
+        data_tests:
+          - unique
+          - not_null
+      - name: payment_method_name
+        data_tests:
+          - not_null
+      - name: created_at
+        data_tests:
+          - not_null
+      - name: updated_at
+        data_tests:
+          - not_null
+
+  - name: dim_customers
+    description: "Dimensional model for customers"
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_name
+        data_tests:
+          - not_null
+      - name: customer_phone
+        data_tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              arguments:
+                regex: '^[0-9]+$'
+
+      - name: customer_address
+
+      - name: created_at
+        data_tests:
+          - not_null
+      - name: updated_at
+        data_tests:
+          - not_null
+      - name: deleted_at
+
+  - name: dim_devices
+    description: "Dimensional model for devies"
+    columns:
+      - name: device_id
+        data_tests:
+          - unique
+          - not_null
+      
+      - name: device_name
+        data_tests:
+          - not_null
+      
+      - name: created_at
+        data_tests:
+          - not_null
+          
+      - name: last_seen_at
+  
+  - name: fct_sales
+    description: "fct model for sales"
+    columns:
+      - name: sale_id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: sale_receipt_number
+
+      - name: device_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: 
+                to: ref('dim_devices')
+                field: device_id
+
+      - name: customer_id
+        data_tests:
+          - relationships:
+              arguments: 
+                to: ref('dim_customers')
+                field: customer_id
+                
+      - name: sale_customer_name_snapshot
+
+      - name: sale_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['completed','refunded','voided']
+
+      - name: current_revision_id
+        data_tests:
+          - relationships:
+              arguments: 
+                to: ref('fct_sale_revisions')
+                field: sale_revision_id
+
+      - name: created_at
+        data_tests:
+          - not_null
+
+      - name: updated_at
+        data_tests:
+          - not_null
+
+      - name: completed_at
+        data_tests:
+          - not_null
+
+      - name: refunded_at
+
+      - name: is_fully_refunded
+        data_tests:
+          - not_null
+
+  - name: fct_sale_revisions
+    columns:
+      - name: sale_discount_pct
+        data_tests:
+          - is_positive
+          - not_null
+
+  - name: fct_sale_revision_items
+    description: "Fact table with one row per sale-revision item"
+    columns:
+      - name: item_id
+        data_tests:
+          - unique
+          - not_null
+
+      - name: sale_revision_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('fct_sale_revisions')
+                field: sale_revision_id
+
+      - name: sale_revision_number
+        data_tests:
+          - not_null
+
+      - name: product_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_products')
+                field: product_id
+
+      - name: item_quantity
+        data_tests:
+          - not_null
+
+      - name: item_unit_cost
+        data_tests:
+          - not_null
+          - is_positive
+
+      - name: item_unit_price
+        data_tests:
+          - not_null
+          - is_positive
+
+      - name: item_line_total
+        data_tests:
+          - not_null
+
+      - name: sale_revision_created_at
+        data_tests:
+          - not_null
+
+  - name: fct_payments
+    description: "Fact Model for payments"
+
+    columns:
+      - name: payment_amount_net
+        data_tests:
+          - is_positive
+          - not_null
+
+      - name: sale_total
+        data_tests:
+          - not_null
+          - is_positive

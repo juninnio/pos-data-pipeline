@@ -1,0 +1,63 @@
+source: PPA_POSTGRES
+target: PPA_DUCKDB
+
+defaults:
+  mode: incremental
+  object: "raw.{stream_table}"
+  target_options:
+    add_new_columns: true
+    column_casing: source
+
+streams:
+  public.categories:
+    mode: full-refresh
+
+
+  public.customers:
+    primary_key: [id]
+    update_key: updated_at
+
+  public.devices:
+    mode: full-refresh
+
+  public.payment_methods:
+    mode: full-refresh
+
+  public.payments:
+    primary_key: [id]
+    update_key: created_at
+
+  public.products:
+    primary_key: [id]
+    update_key: updated_at
+
+  public.sale_revision_items:
+    sql: |
+      SELECT
+        i.id,
+        i.revision_id,
+        i.product_id,
+        i.product_name_snapshot,
+        i.category_name_snapshot,
+        i.quantity,
+        i.unit_cost_minor,
+        i.unit_price_minor,
+        i.line_total_minor,
+        r.created_at AS revision_created_at
+      FROM public.sale_revision_items i
+      JOIN public.sale_revisions r ON r.id = i.revision_id
+      WHERE r.created_at > coalesce({incremental_value}, '2001-01-01'::timestamptz) - interval '3 days'
+    mode: incremental
+    primary_key: [id]
+    update_key: revision_created_at
+
+  public.sale_revisions:
+    primary_key: [id]
+    update_key: created_at
+
+  public.sales:
+    primary_key: [id]
+    update_key: updated_at
+
+env:
+  SLING_LOADED_AT_COLUMN: timestamp

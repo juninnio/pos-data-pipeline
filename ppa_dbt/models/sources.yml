@@ -1,0 +1,51 @@
+version: 2
+
+sources:
+  - name: ppa_dbt
+    schema: raw
+    tables:
+      - name: products
+        description: "Source table for products, grain: one product per row"
+        meta:
+          dagster:
+            asset_key: ["target", "public", "products"]
+      - name: categories
+        description: "Source table for categories, grain: one category per row"
+        meta:
+          dagster:
+            asset_key: ["target", "public", "categories"]
+      - name: payment_methods
+        description: "Source table for payment methods"
+        meta:
+          dagster:
+            asset_key: ["target", "public", "payment_methods"]
+      - name: customers
+        description: "Source table for customers, grain: one customer per row"
+        meta:
+          dagster:
+            asset_key: ["target", "public", "customers"]
+      - name: devices
+        description: "Source table for devices"
+        meta:
+          dagster:
+            asset_key: ["target", "public", "devices"]
+      - name: sales
+        description: "Source table for sales, grain: one sale per row"
+        meta:
+          dagster:
+            asset_key: ["target", "public", "sales"]
+      - name: sale_revisions
+        description: "Source table for sale revisions, grain: one sale revision per row"
+        meta:
+          dagster:
+            asset_key: ["target", "public", "sale_revisions"]
+      - name: sale_revision_items
+        description: "Source table for sale revision items, grain: one sale revision item per row"
+        meta:
+          dagster:
+            asset_key: ["target", "public", "sale_revision_items"]
+      - name: payments
+        description: "Source table for payment, grain: one payment per row"
+        meta:
+          dagster:
+            asset_key: ["target", "public", "payments"]
