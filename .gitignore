@@ -6,3 +6,5 @@ docs
 .vscode
 ppa-dev
 .venv
+.DS_Store
+*/DS_Store
