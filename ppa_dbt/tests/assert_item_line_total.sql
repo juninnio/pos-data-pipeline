@@ -3,10 +3,11 @@ select
     sale_revision_id,
     item_quantity,
     item_unit_price,
-    item_line_total
+    item_line_total,
+    cast(item_quantity * item_unit_price as int) as item_total
 from {{ ref('fct_sale_revision_items') }}
 where
     item_quantity is null
     or item_unit_price is null
     or item_line_total is null
-    or item_line_total <> item_quantity * item_unit_price
+    or item_line_total <> item_total

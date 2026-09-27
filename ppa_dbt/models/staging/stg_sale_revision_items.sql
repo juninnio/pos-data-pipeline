@@ -5,7 +5,7 @@ with standardized as (
         product_id,
         product_name_snapshot,
         category_name_snapshot,
-        cast(quantity as int) as item_quantity,
+        cast(quantity as decimal(18,3)) as item_quantity,
         cast(unit_cost_minor as int) as item_unit_cost,
         cast(unit_price_minor as int) as item_unit_price,
         cast(line_total_minor as int) as item_line_total

@@ -6,7 +6,7 @@ with standardized as (
     lower(trim(reason)) as sale_revision_reason,
     cast(subtotal_minor as int) as sale_revision_subtotal,
     cast(discount_minor as int) as sale_revision_discount,
-    cast(total_minor as int) as sale_revision_total,
+    cast(total_minor as decimal(18,3)) as sale_revision_total,
     cast(amount_tendered_minor as int) as sale_revision_amount_tendered,
     cast(change_minor as int) as sale_revision_change,
     payment_method_id,
