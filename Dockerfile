@@ -26,18 +26,22 @@ COPY ppa_dagster/ ./ppa_dagster/
 COPY ppa_dbt/ ./ppa_dbt/
 RUN pip install --no-cache-dir -e ./ppa_dagster
 
+# Bake dbt packages (dbt_utils, dbt_expectations) so startup needs no network.
+# The manifest itself is NOT baked — entrypoint.sh generates it with runtime env.
+RUN cd ./ppa_dbt && dbt deps --profiles-dir .
+
 # Code location importable without install path hacks; instance state dir.
 ENV DAGSTER_HOME=/opt/dagster/dagster_home \
     PYTHONPATH=/opt/ppa/ppa_dagster/src
 
 COPY dagster.yaml /opt/dagster/dagster_home/dagster.yaml
 COPY workspace.yaml /opt/ppa/workspace.yaml
+COPY entrypoint.sh /opt/ppa/entrypoint.sh
+RUN chmod +x /opt/ppa/entrypoint.sh
 
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
   CMD curl -f http://localhost:3000/server_info || exit 1
 
-# daemon (schedules: ppa_daily; sensors: gate_dbt_on_ingest, telegram) + webserver (UI :3000).
-# `dg dev` is intentionally NOT used here — it is a local-dev-only server.
-CMD ["sh", "-c", "dagster-daemon run -w /opt/ppa/workspace.yaml & exec dagster-webserver -h 0.0.0.0 -p 3000 -w /opt/ppa/workspace.yaml"]
+CMD ["/opt/ppa/entrypoint.sh"]
