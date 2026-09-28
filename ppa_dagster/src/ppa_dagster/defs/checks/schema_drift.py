@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import dagster as dg
 import duckdb
@@ -25,6 +26,24 @@ TABLES = [
     "payments",
     "payment_methods",
 ]
+
+
+def _duckdb_path() -> str:
+    """Resolve DUCKDB_DEV_DATABASE to an absolute path.
+
+    Accepts both forms so the same code runs everywhere:
+    - absolute (Docker: /data/ppa-dev.duckdb, old local .env) -> used as-is
+    - relative (local: ../ppa-dev) -> resolved against the ppa_dagster/
+      project dir, i.e. independent of the process CWD (dg dev, daemon,
+      and `dbt run` all start from different directories).
+    """
+    raw = os.environ["DUCKDB_DEV_DATABASE"]
+    p = Path(raw).expanduser()
+    if not p.is_absolute():
+        # schema_drift.py -> parents[4] == ppa_dagster/ project dir
+        project_dir = Path(__file__).resolve().parents[4]
+        p = (project_dir / p).resolve()
+    return str(p)
 
 
 @dg.asset(
@@ -55,8 +74,8 @@ def schema_drift(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
         dbname="postgres",
         port=5432,
     )
-    # Same file Sling writes and dbt reads (absolute path in .env).
-    duck_conn = duckdb.connect(os.environ["DUCKDB_DEV_DATABASE"])
+    # Same file Sling writes and dbt reads (see _duckdb_path).
+    duck_conn = duckdb.connect(_duckdb_path())
 
     drift: dict[str, dict[str, list[str]]] = {}
     column_counts: dict[str, int] = {}

@@ -1,0 +1,23 @@
+# Keep the image lean: exclude local env, data files, caches and git history.
+.venv
+.git
+.opencode
+.vscode
+graphify-out
+docs
+__pycache__
+*.pyc
+*.pyo
+# Local DuckDB/SQLite data — seeded at deploy time, not baked into the image
+ppa-dev
+ppa_warehouse
+ppa-anon.db
+# Secrets — injected via compose env_file, never copied in
+.env
+.env.docker
+# dbt/dagster build artefacts regenerate inside the container
+ppa_dbt/logs
+ppa_dbt/target
+ppa_dbt/dbt_packages
+*.log
+logs

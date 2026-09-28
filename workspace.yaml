@@ -1,0 +1,12 @@
+# Code locations for the container entrypoint:
+#   dagster-webserver -w /opt/ppa/workspace.yaml
+#   dagster-daemon run -w /opt/ppa/workspace.yaml
+# Works because the Dockerfile sets PYTHONPATH=/opt/ppa/ppa_dagster/src.
+# NOTE: python_module (not python_package) — this is a `dg` project, so the
+# Definitions live in ppa_dagster.definitions.defs while the top-level
+# __init__.py is empty; python_package would find nothing and crash the
+# code server with "No Definitions ... found in ppa_dagster".
+# Local `dg dev` does NOT read this file.
+
+load_from:
+  - python_module: ppa_dagster.definitions

@@ -1,0 +1,38 @@
+# PPA Pipeline — production deployment (Windows host with Docker Desktop + WSL2).
+# Safe to commit: no secret VALUES here, only references.
+# Secrets live in `.env.docker` (gitignored; copy from .env.docker.example).
+#
+# Deploy on the Windows machine:
+#   1. install Docker Desktop (WSL2 backend), copy this file + .env.docker over
+#   2. fill in .env.docker
+#   3. docker compose up -d --build
+#   4. open http://localhost:3000, enable sensors: gate_dbt_on_ingest, telegram_*
+# First run: trigger job `ppa_daily` manually, or let Sling rebuild raw.* from Postgres.
+
+name: ppa-pipeline
+
+services:
+  dagster:
+    build: .
+    image: ppa-pipeline:latest
+    ports:
+      - "3000:3000" # Dagster UI
+    env_file:
+      - .env.docker # DBT_PROD_HOST, DB_SLING_USER, DB_SLING_PASSWORD, TELEGRAM_*
+    environment:
+      TZ: Asia/Jakarta
+      # Absolute container paths — schema_drift._duckdb_path() uses these as-is.
+      # Single-file prod box: Sling, the drift check (both read DEV var) and
+      # dbt (prod target reads PROD var) must share ONE file, so both point
+      # at /data/ppa-prod.duckdb. Splitting them breaks the pipeline.
+      DUCKDB_DEV_DATABASE: /data/ppa-prod.duckdb
+      DUCKDB_PROD_DATABASE: /data/ppa-prod.duckdb
+      DBT_TARGET: prod
+    volumes:
+      - ./data:/data # DuckDB files
+      - dagster_home:/opt/dagster/dagster_home # run history, schedules/sensors state
+    restart: unless-stopped
+
+volumes:
+  ppa_data:
+  dagster_home:

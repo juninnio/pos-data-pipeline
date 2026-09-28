@@ -1,0 +1,29 @@
+# Docker-only Dagster instance config.
+# Copied to $DAGSTER_HOME (/opt/dagster/dagster_home) by the Dockerfile.
+# Local `dg dev` does NOT read this file — it manages its own instance.
+# SQLite storage is enough for the single daily ppa_daily job; run history
+# survives container restarts via the dagster_home volume in docker-compose.yml.
+# NOTE: no `instance_class` key on purpose — declaring it makes Dagster call
+# config_schema() on the class, which plain DagsterInstance lacks (crash at
+# startup). Omitting it selects the default instance, which is what we want.
+
+run_storage:
+  module: dagster._core.storage.runs
+  class: SqliteRunStorage
+  config:
+    base_dir: /opt/dagster/dagster_home
+
+event_log_storage:
+  module: dagster._core.storage.event_log
+  class: SqliteEventLogStorage
+  config:
+    base_dir: /opt/dagster/dagster_home
+
+schedule_storage:
+  module: dagster._core.storage.schedules
+  class: SqliteScheduleStorage
+  config:
+    base_dir: /opt/dagster/dagster_home
+
+telemetry:
+  enabled: false

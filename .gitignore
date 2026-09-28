@@ -10,3 +10,8 @@ ppa-dev
 */DS_Store
 */package-lock.*
 ppa_warehouse
+# Local secrets — never commit (compose loads these via env_file)
+.env
+.env.docker
+*.env.local.bak
+data

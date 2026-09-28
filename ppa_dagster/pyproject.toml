@@ -4,6 +4,18 @@ requires-python = ">=3.10,<3.15"
 version = "0.1.0"
 dependencies = [
     "dagster==1.13.23",
+    # Dagster integrations referenced in src/ppa_dagster/defs/*/*.yaml
+    "dagster-dbt==0.29.23",
+    "dagster-sling==0.29.23",
+    # Sling binary driver (pip picks the OS-correct build; never pin sling-mac-arm64)
+    "sling==1.6.3",
+    # dbt (DuckDB targets only — see ppa_dbt/profiles.yml)
+    "dbt-core==1.12.4",
+    "dbt-duckdb==1.11.0",
+    # Direct imports: defs/checks/schema_drift.py, scripts/duck-import.py
+    "duckdb==1.5.5",
+    "psycopg2-binary==2.9.13",
+    "python-dotenv==1.2.3",
 ]
 
 [dependency-groups]
