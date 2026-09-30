@@ -241,3 +241,21 @@ models:
         data_tests:
           - not_null
           - is_positive
+
+  - name: fct_final_sale_revisions
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - sale_id
+              - item_id
+    columns:
+      - name: sale_id
+        data_tests:
+          - not_null
+      
+      - name: item_cost_total
+        data_tests:
+          - not_null
+          - is_positive
+        
